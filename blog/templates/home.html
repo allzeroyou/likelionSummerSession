@@ -1,26 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>BLOG</title>
-  <style>
-    body{text-align: center;}
-  </style>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if user.is_authenticated%}
+  {{user.location}}에 거주중이고 {{user.university}}에 다니는 {{user.nickname}}님! 환영합니다.
+  {% endif %}
   <h1>Blog project</h1>
-  <div>
-    <a href="{%url 'new'%}">write blog</a>
-  </div>
+
   <div class="container">
-  {%for blog in blogs%}
-    <div>
-    <h3>{{blog.title}}</h3>
-    {{blog.writer}}
-    {{blog.summary}} <a href="{%url 'detail' blog.id %}">.....more</a>
+  <!--정해진 수 만큼 페이지 보여주기-->
+    {%for blog in posts%}
     <br>
-    </div> 
-  {% endfor %}
+      <div>
+        <h3>{{blog.title}}</h3>
+        {{blog.writer}}
+        {{blog.summary}} <a href="{%url 'detail' blog.id %}">.....more</a>
+        <br>
+      </div> 
+    {% endfor %}
   </div>
-</body>
-</html>
+  <!--페이지네이션-->
+  {% if posts.has_previous%}
+  <a href="?page=1">First</a>
+  <a href="?page={{posts.previous_page_number}}">Previous</a>
+  {% endif %}
+  
+  <span>{{posts.number}}</span>
+  <span>of</span>
+  <span>{{posts.paginator.num_pages}}</span>
+
+  {% if posts.has_next %}
+  <a href="?page={{posts.next_page_number}}">Next</a>
+  <a href="?page={{posts.paginator.num_pages}}">Last</a>
+  {% endif %}
+
+{% endblock %}

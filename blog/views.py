@@ -1,11 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Blog
 from django.utils import timezone
+from django.core.paginator import Paginator
+from .models import Blog
+
+
 
 # Create your views here.
 def home(request):
   blogs = Blog.objects.all()
-  return render(request, 'home.html',{'blogs':blogs})
+  paginator = Paginator(blogs, 3)
+  page = request.GET.get('page')
+  posts = paginator.get_page(page)
+  return render(request, 'home.html',{'blogs':blogs,'posts':posts})
 
 def detail(request, id):
   blog=get_object_or_404(Blog, pk=id) #html 404 에러, pk=primary key(기본키)
@@ -20,6 +26,7 @@ def create(request):
   new_blog.writer=request.POST['writer']
   new_blog.body=request.POST['body']
   new_blog.pub_date=timezone.now()
+  new_blog.image = request.FILES['image']
   new_blog.save()
   return redirect('detail',new_blog.id)
 
