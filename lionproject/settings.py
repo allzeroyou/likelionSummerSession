@@ -12,25 +12,25 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z+n%=d00euk^u&ai23s+hvs0_&=ojkw!xqaxke%zq^*n#0)_hr'
+SECRET_KEY = os.environ.get(
+  'SECRET_KEY','z+n%=d00euk^u&ai23s+hvs0_&=ojkw!xqaxke%zq^*n#0)_hr')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = ( os.environ.get('DEBUG', 'True') != 'False')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL='account.CustomUser'
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,10 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog',
     'account',
-    'bootstrap4',
+
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,13 +127,30 @@ STATIC_URL = '/static/'
 #현재 static 파일들이 어디에 있는지
 STATICFICES_DIRS=[
   os.path.join(BASE_DIR, 'blog', 'static')
-  ]
+]
 #static 파일을 어디에 모을건지?
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 #이용자가 업로드한 파일을 모으는 곳
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 #media의 링크
 MEDIA_URL='/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+#AWS
+
+AWS_ACCESS_KEY_ID = os.environ.get('AKIAZ4REJ5RNNBSZBKGX')
+AWS_SECRET_ACCESS_KEY = os.environ.get('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')
+AWS_STORAGE_BUCKET_NAME = 'likelion-summersession'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_REGION_NAME='ap-northeast-2'
+
+# Heroku: Update database configuration from $DATABASE_URL.
+
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
